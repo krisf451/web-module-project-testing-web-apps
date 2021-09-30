@@ -137,6 +137,78 @@ test('renders "lastName is a required field" if an last name is not entered and 
   });
 });
 
-test("renders all firstName, lastName and email text when submitted. Does NOT render message if message is not submitted.", async () => {});
+test("renders all firstName, lastName and email text when submitted. Does NOT render message if message is not submitted.", async () => {
+  render(<ContactForm />);
+  const firstName = screen.getByLabelText(/first name*/i);
+  const lastName = screen.getByLabelText(/last name*/i);
+  const email = screen.getByLabelText(/email*/i);
 
-test("renders all fields text when all fields are submitted.", async () => {});
+  userEvent.type(firstName, "kristian");
+  userEvent.type(lastName, "fulkerson");
+  userEvent.type(email, "thisguy451@gmail.com");
+
+  const button = screen.getByRole("button");
+  userEvent.click(button);
+
+  await waitFor(() => {
+    const firstNameShows = screen.queryByText("kristian");
+    const lastNameShows = screen.queryByText("fulkerson");
+    const emailShows = screen.queryByText("thisguy451@gmail.com");
+    const messageShows = screen.queryByTestId("messageDisplay");
+    expect(firstNameShows).toBeInTheDocument();
+    expect(lastNameShows).toBeInTheDocument();
+    expect(emailShows).toBeInTheDocument();
+    expect(messageShows).not.toBeInTheDocument();
+  });
+});
+
+test("renders all fields text when all fields are submitted.", async () => {
+  render(<ContactForm />);
+
+  const firstName = screen.queryByPlaceholderText(/edd/i);
+  const lastName = screen.queryByPlaceholderText(/burke/i);
+  const email = screen.queryByPlaceholderText(/bluebill1049@hotmail.com/i);
+  const button = screen.queryByRole("button");
+  userEvent.type(firstName, "Kristian");
+  userEvent.type(lastName, "");
+  userEvent.type(email, "thisistheguy451@gmail.com");
+  userEvent.click(button);
+
+  await waitFor(() => {
+    const lastNameError = screen.queryByText(
+      /error: lastname is a required field./i
+    );
+    expect(lastNameError).toHaveTextContent(
+      /error: lastname is a required field./i
+    );
+    expect(lastNameError).toBeTruthy();
+    expect(lastNameError).toBeInTheDocument();
+  });
+});
+
+test("renders all firstName, lastName and email text when submitted. Does NOT render message if message is not submitted.", async () => {
+  render(<ContactForm />);
+  const firstName = screen.getByLabelText(/first name*/i);
+  const lastName = screen.getByLabelText(/last name*/i);
+  const email = screen.getByLabelText(/email*/i);
+  const message = screen.getByLabelText(/message/i);
+
+  userEvent.type(firstName, "kristian");
+  userEvent.type(lastName, "fulkerson");
+  userEvent.type(email, "thisguy451@gmail.com");
+  userEvent.type(message, "my first message");
+
+  const button = screen.getByRole("button");
+  userEvent.click(button);
+
+  await waitFor(() => {
+    const firstNameShows = screen.queryByTestId("firstnameDisplay");
+    const lastNameShows = screen.queryByTestId("lastnameDisplay");
+    const emailShows = screen.queryByTestId("emailDisplay");
+    const messageShows = screen.queryByTestId("messageDisplay");
+    expect(firstNameShows).toBeInTheDocument();
+    expect(lastNameShows).toBeInTheDocument();
+    expect(emailShows).toBeInTheDocument();
+    expect(messageShows).toBeInTheDocument();
+  });
+});
